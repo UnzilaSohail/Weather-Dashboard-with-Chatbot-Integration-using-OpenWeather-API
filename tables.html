@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+    <link rel="stylesheet" href="table.css">
+</head>
+
+<body>
+    <div class="container">
+        <!-- Sidebar Section -->
+        <div class="sidebar">
+            <div class="logo">
+                <img src="./images/logo.png" alt="Logo" style="width: 50px; height: auto; margin-right: 10px; vertical-align: middle;">
+                Weather App
+            </div>
+            <ul class="nav">
+                <li><a href="index.html">Dashboard</a></li>
+                <li><a href="tables.html">Tables</a></li>
+            </ul>
+        </div>
+        <div class="main-content">
+            <!-- Top Bar -->
+            <div class="top-bar">
+                <input type="text" id="city-input" placeholder="Enter city">
+                <!-- Dropdown for filter options -->
+                <select id="sort-temperatures">
+                    <option value="Sort Temperatures Ascending">Sort Temperatures Ascending</option>
+                    <option value="Sort Temperatures Descending">Sort Temperatures Descending</option>
+                    <option value="Filter Rainy Days">Filter Rainy Days</option>
+                    <option value="Show Highest Temperature">Show Highest Temperature</option>
+                    <option value="Reset to Normal">Reset to Normal</option>
+                </select>
+                <button id="get-weather-btn">Get Weather</button>
+                <div class="user-profile">
+                    <img src="./images/user.png" alt="User Profile">
+                </div>
+            </div>
+
+            <section class="content-area">
+                <div class="table-chatbot-wrapper">
+                    <!-- Table Section -->
+                    <div class="table-section">
+                        <h2>Weather Forecast</h2>
+                        <table id="forecast-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Time</th>
+                                    <th>Weather</th>
+                                    <th>Temperature (°C)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="forecast-body">
+                                <!-- Forecast rows will be inserted here -->
+                            </tbody>
+                        </table>
+                        <div id="pagination">
+                            <button id="prev-page" disabled>Previous</button>
+                            <span id="page-info">Page 1 of X</span>
+                            <button id="next-page" disabled>Next</button>
+                        </div>
+                    </div>
+
+                    <!-- Chatbot Section -->
+                    <div class="chatbot-section">
+                        <h1>Enter Gemini API Key</h1>
+                        <form id="apiKeyForm">
+                            <label for="apiKey">API Key:</label>
+                            <input type="text" id="apiKey" name="apiKey" required>
+                            <label for="apiPrompt">API Prompt:</label>
+                            <input type="text" id="apiPrompt" name="apiPrompt" required>
+                            <button type="submit" id="submitButton">Submit</button>
+                        </form>
+                        <div id="response" class="chat-response"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+
+    <!-- Main App Script -->
+    <script src="table.js"></script>
+    <script>
+        document.getElementById('apiKeyForm').addEventListener('submit', function (event) {
+            event.preventDefault(); // Prevent the default form submission
+            const apiKey = document.getElementById('apiKey').value;
+            const apiPrompt = document.getElementById('apiPrompt').value;
+
+            fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    contents: [
+                        {
+                            parts: [
+                                {
+                                    text: apiPrompt
+                                }
+                            ]
+                        }
+                    ]
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                return response.json(); // Parse the JSON response
+            })
+            .then(data => {
+                console.log('Full API Response:', data); // Log the entire response for debugging
+
+                // Extracting the desired text from the API response
+                if (data.candidates && data.candidates.length > 0 && 
+                    data.candidates[0].content && 
+                    data.candidates[0].content.parts && 
+                    data.candidates[0].content.parts.length > 0) {
+                    // Display only the response text
+                    document.getElementById('response').innerText = data.candidates[0].content.parts[0].text.trim(); 
+                } else {
+                    document.getElementById('response').innerText = 'No valid response received.';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error); // Log the error to the console
+                document.getElementById('response').innerText = 'Error: ' + error.message; // Display the error message
+            });
+        });
+    </script>
+</body>
+
+</html>
