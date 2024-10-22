@@ -210,3 +210,43 @@ sortDropdown.addEventListener('change', (event) => {
         chatResponse.innerText = 'An error occurred while fetching the response. ' + error.message;
     }
 }
+// Add this to your existing script
+document.addEventListener('DOMContentLoaded', function() {
+    // Create and add menu toggle button
+    const menuButton = document.createElement('button');
+    menuButton.className = 'menu-toggle';
+    menuButton.innerHTML = '☰';
+    document.body.insertBefore(menuButton, document.body.firstChild);
+
+    // Toggle sidebar
+    menuButton.addEventListener('click', function() {
+        const sidebar = document.querySelector('.sidebar');
+        sidebar.classList.toggle('active');
+        // Change button text based on sidebar state
+        this.innerHTML = sidebar.classList.contains('active') ? '×' : '☰';
+    });
+
+    // Close sidebar when clicking outside
+    document.addEventListener('click', function(event) {
+        const sidebar = document.querySelector('.sidebar');
+        const menuButton = document.querySelector('.menu-toggle');
+        
+        if (!sidebar.contains(event.target) && 
+            !menuButton.contains(event.target) && 
+            sidebar.classList.contains('active')) {
+            sidebar.classList.remove('active');
+            menuButton.innerHTML = '☰';
+        }
+    });
+
+    // Handle window resize
+    window.addEventListener('resize', function() {
+        const sidebar = document.querySelector('.sidebar');
+        const menuButton = document.querySelector('.menu-toggle');
+        
+        if (window.innerWidth > 640) {
+            sidebar.classList.remove('active');
+            menuButton.innerHTML = '☰';
+        }
+    });
+});

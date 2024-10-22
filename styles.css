@@ -303,6 +303,12 @@ th {
     min-height: 50px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
 }
+.hamburger {
+    display: none; /* Hidden by default */
+    font-size: 30px;
+    cursor: pointer;
+    margin: 20px;
+}
 
 /* Media Queries for Responsiveness */
 @media (max-width: 1024px) {
@@ -320,25 +326,6 @@ th {
     }
 }
 
-@media (max-width: 768px) {
-    .sidebar {
-        display: none; /* Hide sidebar on smaller screens */
-    }
-
-    .weather-widget {
-        width: 100%;
-        margin: 10px 0; /* Full-width weather widget on mobile */
-    }
-
-    .charts {
-        flex-direction: column; /* Stack charts vertically */
-        align-items: center; /* Center align charts */
-    }
-
-    canvas {
-        max-width: 100%; /* Allow full width on mobile */
-    }
-}
 #forecast-table {
     width: 100%;
     border-collapse: collapse;
@@ -351,16 +338,6 @@ th {
     padding: 8px;
     text-align: center;
 }
-
-
-/* Hamburger menu styles */
-.hamburger {
-    display: none; /* Initially hidden */
-    font-size: 30px; /* Increase size for visibility */
-    cursor: pointer; /* Change cursor to pointer */
-    color: #34495e; /* Color for the hamburger icon */
-}
-
 /* Media Queries for Responsiveness */
 @media (max-width: 1024px) {
     .sidebar {
@@ -371,9 +348,14 @@ th {
         width: calc(100% - 275px);
     }
 
-    .charts {
+    .chart-container {
         flex-direction: column; /* Stack charts vertically */
-        align-items: center; /* Center align charts */
+        align-items: stretch; /* Stretch to full width */
+    }
+
+    .chart {
+        width: 100%; /* Ensure charts take full width */
+        margin: 10px 0; /* Margin for spacing */
     }
 }
 
@@ -387,28 +369,92 @@ th {
         margin: 10px 0; /* Full-width weather widget on mobile */
     }
 
-    .charts {
+    .chart-container {
         flex-direction: column; /* Stack charts vertically */
-        align-items: center; /* Center align charts */
+        align-items: stretch; /* Stretch to full width */
+    }
+
+    .chart {
+        width: 100%; /* Full width for charts */
+        margin: 10px 0; /* Margin for spacing */
     }
 
     canvas {
         max-width: 100%; /* Allow full width on mobile */
     }
+}
+
+@media (max-width: 640px) {
+    .sidebar {
+        display: none; /* Hide sidebar */
+    }
+
+    .main-content {
+        margin: 10px 0; /* Full-width main content */
+    }
 
     .hamburger {
-        display: block; /* Show hamburger icon on mobile */
+        display: block; /* Show hamburger menu */
     }
 
-    /* Active state for sidebar */
-    .sidebar.active {
-        display: block; /* Show sidebar when active */
-        position: fixed; /* Fix position */
-        width: 70%; /* Adjust as needed */
-        height: 100%; /* Full height */
-        background-color: #2c3e50; /* Match the sidebar color */
-        top: 0; /* Align to top */
-        left: 0; /* Align to left */
-        z-index: 1000; /* Ensure above other content */
+    .charts-container {
+        display: flex;
+        flex-direction: column; /* Stack charts vertically */
+        align-items: stretch; /* Stretch to full width */
     }
+
+    .chart {
+        display: flex;
+        flex-direction: column;
+        width: 100%; /* Full width for charts */
+        margin: 10px 0; /* Margin for spacing */
+    }
+    .top-bar button {
+        padding: 10px; /* Increase padding for easier tapping */
+        font-size: 14px; /* Adjust font size for readability */
+        width: 50%; /* Make button full width for better usability */
+        margin-top: 10px; /* Add some margin on top */
+        margin: 15px;
+    }
+    
+    .top-bar .user-profile {
+        margin-top: 38px;
+        width: 80px; /* Fixed width for profile image */
+        height: 80px; /* Fixed height for profile image */
+        border-radius: 50%; /* Circular profile image */
+        overflow: hidden; /* Ensure no overflow */
+    }
+    
+    .top-bar .user-profile img {
+        width: 100%; /* Responsive image */
+        height: 50%; /* Maintain aspect ratio */
+    }
+    #forecast-container {
+        flex-direction: column; /* Stack items vertically on mobile */
+        gap: 5px; /* Reduce gap for smaller screens */
+    }
+
+    /* Optional: Adjusting the width of forecast items for mobile */
+    .forecast-item {
+        width: 100%; /* Full width for each item on mobile */
+    }
+}
+
+
+/* Sidebar slide-in effect when open */
+.sidebar.open {
+    display: block;
+    position: fixed;
+    width: 60%;
+    left: 0;
+    top: 0;
+    height: 100%;
+    background-color: #2c3e50;
+    padding: 20px;
+    z-index: 1000;
+    transition: transform 0.3s ease;
+}
+
+.main-content.sidebar-open {
+    margin-left: 60%; /* Shift content when sidebar is open */
 }

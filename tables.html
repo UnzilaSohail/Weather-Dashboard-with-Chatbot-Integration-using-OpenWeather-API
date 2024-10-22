@@ -21,12 +21,18 @@
                 <li><a href="tables.html">Tables</a></li>
             </ul>
         </div>
+<div class="hamburger" onclick="toggleSidebar()">
+            &#9776;
+        </div>
+        
         <div class="main-content">
             <!-- Top Bar -->
             <div class="top-bar">
                 <input type="text" id="city-input" placeholder="Enter city">
+             
                 <!-- Dropdown for filter options -->
                 <select id="sort-temperatures">
+                    <option value="" disabled selected>Filters:</option>
                     <option value="Sort Temperatures Ascending">Sort Temperatures Ascending</option>
                     <option value="Sort Temperatures Descending">Sort Temperatures Descending</option>
                     <option value="Filter Rainy Days">Filter Rainy Days</option>
@@ -66,11 +72,10 @@
 
                     <!-- Chatbot Section -->
                     <div class="chatbot-section">
-                        <h1>Enter Gemini API Key</h1>
+                        <h1>Let's Chat with Chatbot</h1>
                         <form id="apiKeyForm">
-                            <label for="apiKey">API Key:</label>
-                            <input type="text" id="apiKey" name="apiKey" required>
-                            <label for="apiPrompt">API Prompt:</label>
+                          
+                            <label for="apiPrompt">Prompt:</label>
                             <input type="text" id="apiPrompt" name="apiPrompt" required>
                             <button type="submit" id="submitButton">Submit</button>
                         </form>
@@ -84,53 +89,111 @@
     <!-- Main App Script -->
     <script src="table.js"></script>
     <script>
-        document.getElementById('apiKeyForm').addEventListener('submit', function (event) {
-            event.preventDefault(); // Prevent the default form submission
-            const apiKey = document.getElementById('apiKey').value;
-            const apiPrompt = document.getElementById('apiPrompt').value;
+document.getElementById('apiKeyForm').addEventListener('submit', function (event) {
+    event.preventDefault(); // Prevent the default form submission
+    const apiKey = 'AIzaSyDbyhGf6P46LIgZnjBIYQ8SsLISS46cncI'; // Hardcoded Gemini API key
+    const openWeatherApiKey = 'a87da7c47ef5f9c66efd2be7a7036d53'; // Hardcoded OpenWeather API key
+    const apiPrompt = document.getElementById('apiPrompt').value;
 
-            fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    contents: [
-                        {
-                            parts: [
-                                {
-                                    text: apiPrompt
-                                }
-                            ]
-                        }
-                    ]
-                })
-            })
+    // Check if the user's prompt is related to weather
+    if (apiPrompt.toLowerCase().includes('weather') || apiPrompt.toLowerCase().includes('temperature') || apiPrompt.toLowerCase().includes('forecast')) {
+        // Adjust the regex to capture city names that may include spaces
+        const city = apiPrompt.match(/in\s+(.+)/i); // Capture everything after "in"
+        const cityName = city ? city[1].trim() : 'London'; // Default city if none found
+        
+        console.log('Extracted City Name:', cityName); // Log the extracted city name
+
+        // Fetch weather data from OpenWeather API
+        const fetchUrl = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(cityName)}&appid=${openWeatherApiKey}&units=metric`;
+        console.log('Fetch URL:', fetchUrl); // Log the fetch URL
+
+        fetch(fetchUrl)
             .then(response => {
                 if (!response.ok) {
                     throw new Error(`HTTP error! status: ${response.status}`);
                 }
-                return response.json(); // Parse the JSON response
+                return response.json();
             })
             .then(data => {
-                console.log('Full API Response:', data); // Log the entire response for debugging
-
-                // Extracting the desired text from the API response
-                if (data.candidates && data.candidates.length > 0 && 
-                    data.candidates[0].content && 
-                    data.candidates[0].content.parts && 
-                    data.candidates[0].content.parts.length > 0) {
-                    // Display only the response text
-                    document.getElementById('response').innerText = data.candidates[0].content.parts[0].text.trim(); 
-                } else {
-                    document.getElementById('response').innerText = 'No valid response received.';
-                }
+                // Display weather information
+                const weatherDescription = data.weather[0].description;
+                const temperature = data.main.temp;
+                const responseMessage = `The weather in ${cityName} is currently ${weatherDescription} with a temperature of ${temperature}°C.`;
+                document.getElementById('response').innerText = responseMessage;
             })
             .catch(error => {
-                console.error('Error:', error); // Log the error to the console
-                document.getElementById('response').innerText = 'Error: ' + error.message; // Display the error message
+                console.error('Error:', error);
+                document.getElementById('response').innerText = 'Error fetching weather data: ' + error.message;
             });
+    }else {
+        // Handle non-weather queries with Gemini API
+        fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                contents: [
+                    {
+                        parts: [
+                            {
+                                text: apiPrompt
+                            }
+                        ]
+                    }
+                ]
+            })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Full API Response:', data);
+            if (data.candidates && data.candidates.length > 0 && 
+                data.candidates[0].content && 
+                data.candidates[0].content.parts && 
+                data.candidates[0].content.parts.length > 0) {
+                document.getElementById('response').innerText = data.candidates[0].content.parts[0].text.trim();
+            } else {
+                document.getElementById('response').innerText = 'No valid response received.';
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('response').innerText = 'Error: ' + error.message;
         });
+    }
+});
+
+
+       
+
+function toggleSidebar() {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    
+    sidebar.classList.toggle('open');
+    mainContent.classList.toggle('sidebar-open');
+}
+
+// Close sidebar if clicked outside
+document.addEventListener('click', function(event) {
+    const sidebar = document.querySelector('.sidebar');
+    const mainContent = document.querySelector('.main-content');
+    const hamburger = document.getElementById('hamburger');
+
+    // Check if the sidebar is open and the click is outside the sidebar and hamburger
+    if (sidebar.classList.contains('open') && !sidebar.contains(event.target) && !hamburger.contains(event.target)) {
+        sidebar.classList.remove('open');
+        mainContent.classList.remove('sidebar-open');
+    }
+});
+
+
+
     </script>
 </body>
 

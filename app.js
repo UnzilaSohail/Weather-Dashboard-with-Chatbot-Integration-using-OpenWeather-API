@@ -32,18 +32,28 @@ getWeatherBtn.addEventListener('click', fetchWeather);
 toggleUnitBtn.addEventListener('click', toggleUnit);
 
 // Fetch weather data from OpenWeather API
+// Fetch weather data from OpenWeather API
 async function fetchWeather() {
-    const city = cityInput.value;
-    if (!city) return;
+    const city = cityInput.value.trim(); // Trim any extra spaces
+    if (!city) {
+        alert("Please enter a city name."); // Prompt user for input
+        return;
+    }
 
     const weatherUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=${isCelsius ? 'metric' : 'imperial'}`;
     const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${API_KEY}&units=${isCelsius ? 'metric' : 'imperial'}`;
 
     try {
         const weatherResponse = await fetch(weatherUrl);
+        if (!weatherResponse.ok) {
+            throw new Error(`Weather data not found for ${city}. Please check the city name.`); // Handle 404 and other errors
+        }
         const weatherData = await weatherResponse.json();
 
         const forecastResponse = await fetch(forecastUrl);
+        if (!forecastResponse.ok) {
+            throw new Error(`Forecast data not found for ${city}. Please check the city name.`); // Handle 404 and other errors
+        }
         const forecastData = await forecastResponse.json();
 
         updateWeatherUI(weatherData);
@@ -51,6 +61,7 @@ async function fetchWeather() {
         updateCharts(weatherData.main.temp, forecastData.list);
     } catch (error) {
         console.error("Error fetching weather data:", error);
+        alert(error.message); // Show error message to the user
     }
 }
 
@@ -90,6 +101,9 @@ function toggleUnit() {
     fetchWeather(); // Re-fetch weather data with new unit
 }
 
+// Variables to store chart instances
+let barChart, doughnutChart, lineChart;
+
 // Update charts with current temperature and forecast data
 function updateCharts(currentTemp, forecastData) {
     const temperatures = forecastData.map(item => item.main.temp);
@@ -103,8 +117,9 @@ function updateCharts(currentTemp, forecastData) {
 
     // Bar chart
     const barChartCtx = document.getElementById('barChart').getContext('2d');
-    barChartCtx.clearRect(0, 0, barChartCtx.canvas.width, barChartCtx.canvas.height);
-    const barChart = new Chart(barChartCtx, {
+    // Destroy existing chart if it exists
+    if (barChart) barChart.destroy();
+    barChart = new Chart(barChartCtx, {
         type: 'bar',
         data: {
             labels: [...Array(forecastData.length / 8).keys()].map(i => new Date(forecastData[i * 8].dt * 1000).toLocaleDateString()),
@@ -137,8 +152,9 @@ function updateCharts(currentTemp, forecastData) {
     const doughnutLabels = Object.keys(conditionCounts);
     const doughnutData = Object.values(conditionCounts);
     const doughnutChartCtx = document.getElementById('doughnutChart').getContext('2d');
-    doughnutChartCtx.clearRect(0, 0, doughnutChartCtx.canvas.width, doughnutChartCtx.canvas.height);
-    const doughnutChart = new Chart(doughnutChartCtx, {
+    // Destroy existing chart if it exists
+    if (doughnutChart) doughnutChart.destroy();
+    doughnutChart = new Chart(doughnutChartCtx, {
         type: 'doughnut',
         data: {
             labels: doughnutLabels,
@@ -154,14 +170,15 @@ function updateCharts(currentTemp, forecastData) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            cutoutPercentage: 70, // Makes it look more like a doughnut
+            cutoutPercentage: 70,
         }
     });
 
     // Line chart
     const lineChartCtx = document.getElementById('lineChart').getContext('2d');
-    lineChartCtx.clearRect(0, 0, lineChartCtx.canvas.width, lineChartCtx.canvas.height);
-    const lineChart = new Chart(lineChartCtx, {
+    // Destroy existing chart if it exists
+    if (lineChart) lineChart.destroy();
+    lineChart = new Chart(lineChartCtx, {
         type: 'line',
         data: {
             labels: [...Array(forecastData.length / 8).keys()].map(i => new Date(forecastData[i * 8].dt * 1000).toLocaleDateString()),
@@ -169,13 +186,13 @@ function updateCharts(currentTemp, forecastData) {
                 label: 'Temperature (°C)',
                 data: temperatures.filter((_, index) => index % 8 === 0),
                 borderColor: '#FF33A1',
-                backgroundColor: 'rgba(255, 51, 165, 0)', // No fill
-                borderWidth: 2, // Thicker line for better visibility
-                pointRadius: 4, // Slightly larger points
-                pointBackgroundColor: '#FF33A1', // Color of points
-                pointBorderColor: '#fff', // Border color of points
-                pointBorderWidth: 2, // Border width of points
-                fill: false // Disable filling
+                backgroundColor: 'rgba(255, 51, 165, 0)',
+                borderWidth: 2,
+                pointRadius: 4,
+                pointBackgroundColor: '#FF33A1',
+                pointBorderColor: '#fff',
+                pointBorderWidth: 2,
+                fill: false
             }]
         },
         options: {
@@ -188,13 +205,14 @@ function updateCharts(currentTemp, forecastData) {
                 x: {
                     ticks: {
                         autoSkip: true,
-                        maxTicksLimit: 5 // Limit number of x-axis labels
+                        maxTicksLimit: 5
                     }
                 }
             }
         }
     });
 }
+
 
 // Function to get the appropriate background image based on the weather description
 function getWeatherBackgroundImage(description) {
@@ -226,9 +244,3 @@ const entriesPerPage = 10;
 
 
 
-const hamburgerBtn = document.getElementById('hamburger-btn');
-const sidebar = document.getElementById('sidebar');
-
-hamburgerBtn.addEventListener('click', () => {
-    sidebar.classList.toggle('active'); // Toggle the sidebar
-});
