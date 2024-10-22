@@ -99,7 +99,7 @@ document.getElementById('apiKeyForm').addEventListener('submit', function (event
     if (apiPrompt.toLowerCase().includes('weather') || apiPrompt.toLowerCase().includes('temperature') || apiPrompt.toLowerCase().includes('forecast')) {
         // Adjust the regex to capture city names that may include spaces
         const city = apiPrompt.match(/in\s+(.+)/i); // Capture everything after "in"
-        const cityName = city ? city[1].trim() : 'London'; // Default city if none found
+        const cityName = city ? city[1].trim() : 'London, rawalpindi, peshawar'; // Default city if none found
         
         console.log('Extracted City Name:', cityName); // Log the extracted city name
 
