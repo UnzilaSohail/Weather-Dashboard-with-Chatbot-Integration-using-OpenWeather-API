@@ -21,7 +21,7 @@ getWeatherBtn.addEventListener('click', () => {
         alert("Please enter a city name.");
     }
 });
-
+console.log("testing");
 // Function to fetch weather forecast from OpenWeather API
 async function getWeatherForecast(city) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
@@ -249,4 +249,5 @@ document.addEventListener('DOMContentLoaded', function() {
             menuButton.innerHTML = '☰';
         }
     });
+
 });
