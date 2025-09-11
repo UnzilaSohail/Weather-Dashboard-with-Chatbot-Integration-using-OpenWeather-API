@@ -1,6 +1,6 @@
 // API key for OpenWeather
 const API_KEY = 'a87da7c47ef5f9c66efd2be7a7036d53';
-console.log("testing");
+console.log("test");
 // DOM elements
 const cityInput = document.getElementById('city-input');
 const getWeatherBtn = document.getElementById('get-weather-btn');
@@ -241,6 +241,7 @@ function updateWeatherUI(data) {
 }
 let currentPage = 1;
 const entriesPerPage = 10;
+
 
 
 
