@@ -30,7 +30,7 @@ function getWeatherIcon(description) {
 // Event listeners
 getWeatherBtn.addEventListener('click', fetchWeather);
 toggleUnitBtn.addEventListener('click', toggleUnit);
-
+console.log("Test");
 // Fetch weather data from OpenWeather API
 // Fetch weather data from OpenWeather API
 async function fetchWeather() {
@@ -241,6 +241,7 @@ function updateWeatherUI(data) {
 }
 let currentPage = 1;
 const entriesPerPage = 10;
+
 
 
 
