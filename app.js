@@ -64,7 +64,7 @@ async function fetchWeather() {
         alert(error.message); // Show error message to the user
     }
 }
-console.log("test");
+console.log("testing");
 // Update weather UI
 function updateWeatherUI(data) {
     cityName.textContent = data.name;
@@ -241,6 +241,7 @@ function updateWeatherUI(data) {
 }
 let currentPage = 1;
 const entriesPerPage = 10;
+
 
 
 
